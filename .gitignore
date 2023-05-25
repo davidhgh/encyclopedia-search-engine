@@ -1,3 +1,6 @@
+# Search Engine Files
+encyclopedia/meta.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
