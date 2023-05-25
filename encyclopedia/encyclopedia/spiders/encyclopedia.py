@@ -9,13 +9,15 @@ class EncyclopediaSpider(scrapy.Spider):
         "Degree", "Internet", "Things", "Information", "Info", "Retrieval", "Retrieve", "Info", "Universe", "University",
     ]
     start_urls = [
-        "https://www.encyclopedia.com/economics/news-and-education-magazines/computer-software-engineer",
+        "https://www.encyclopedia.com/economics/news-and-education-magazines/computer-software-engineer",   #961
+        "https://www.encyclopedia.com/social-sciences/encyclopedias-almanacs-transcripts-and-maps/computers",   #961
+        "https://www.encyclopedia.com/books/politics-and-business-magazines/systems-computer-technology-corp",  #961
     ]
     visited_urls = set()
 
     def start_requests(self):   # Overrides default start_requests() function and start_urls
         urls = [
-            "https://www.encyclopedia.com/science-and-technology/computers-and-electrical-engineering/computers-and-computing/personal-computer",
+            "https://www.encyclopedia.com/social-sciences/encyclopedias-almanacs-transcripts-and-maps/computers",
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
@@ -35,13 +37,15 @@ class EncyclopediaSpider(scrapy.Spider):
             "title": response.xpath("//title/text()").extract_first(),
             "description": response.xpath('//meta[@name="description"]/@content').get(),
             "abstract": response.xpath('//meta[@name="abstract"]/@content').get(),
+            "content": response.xpath("//div[contains(@class, 'doccontentwrapper')]/p").getall(),   #Just to get an estimate of the JSON file size with content of pages
             # Add more meta information as needed
         }
 
         # Save the meta information to a separate JSON file
-        with open("meta.json", "a+") as f:
+        with open(f"meta-{self.keywords[0]}.json", "a+") as f:
             f.write(json.dumps(meta_data) + ",\n")
 
+        # next_page_url = response.xpath('//a[@href]')  #Crawls all url on page
         next_page_url = response.xpath('//a[contains(@href, "computer")]/@href')
         for url in next_page_url:
             if url in self.visited_urls:
