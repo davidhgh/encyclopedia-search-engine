@@ -8,8 +8,8 @@ class GeturlSpider(CrawlSpider):
     start_urls = ["https://www.encyclopedia.com/"]
 
     keywords = [
-        "Computer", "Glasgow", "United", "Kingdom", "Library", "Fog", "Empires", "Doctor", "Hospital", "Bachelor",
-        "Degree", "Internet", "Things", "Information", "Info", "Retrieval", "Retrieve", "Info", "Universe", "University",
+        "computer", "glasgow", "united", "kingdom", "library", "fog", "empires", "doctor", "hospital", "bachelor",
+        "degree", "internet", "things", "information", "info", "retrieval", "retrieve", "info", "universe", "university",
     ]
 
     rules = (
@@ -17,7 +17,8 @@ class GeturlSpider(CrawlSpider):
     )
 
     def parse(self, response):
-        if any(keyword in response.text for keyword in self.keywords):
+        checktext = response.text.lower().split()
+        if any(keyword in checktext for keyword in self.keywords):
             b64 = base64.b64encode(response.body)
             sb64 = b64.decode()
             meta_data = {
