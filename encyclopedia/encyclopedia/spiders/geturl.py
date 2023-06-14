@@ -18,7 +18,7 @@ class GeturlSpider(CrawlSpider):
     )
 
     def parse(self, response):
-        text = BeautifulSoup(response.body).get_text()
+        text = BeautifulSoup(response.body).get_text().encode('ASCII', 'ignore').decode()
         checktext = text.lower().split()
         if any(keyword in checktext for keyword in self.keywords):
             b64 = base64.b64encode(response.body)
@@ -26,8 +26,8 @@ class GeturlSpider(CrawlSpider):
             meta_data = {
                 "url": response.url,
                 "title": response.xpath("//title/text()").extract_first(),
-                "description": response.xpath('//meta[@name="description"]/@content').get(),
-                "abstract": response.xpath('//meta[@name="abstract"]/@content').get(),
+                "description": response.xpath('//meta[@name="description"]/@content').get().encode('ASCII', 'ignore').decode(),
+                "abstract": response.xpath('//meta[@name="abstract"]/@content').get().encode('ASCII', 'ignore').decode(),
                 "content": text,
                 "html": sb64
                 #"content": response.xpath("//div[contains(@class, 'doccontentwrapper')]/p").getall(),   #Just to get an estimate of the JSON file size with content of pages

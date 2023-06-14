@@ -4,7 +4,7 @@ import base64
 class PageSpider(RedisSpider):
     """Follow categories and extract links."""
     name = 'getpage'
-    redis_key = 'test'
+    redis_key = 'geturl:items'
 
     def parse(self, response):
         b64 = base64.b64encode(response.body)
