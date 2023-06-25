@@ -4,7 +4,7 @@ import base64
 from bs4 import BeautifulSoup
 
 class GeturlSpider(CrawlSpider):
-    name = "geturl"
+    name = "geturl_delete"
     allowed_domains = ["encyclopedia.com"]
     start_urls = ["https://www.encyclopedia.com/"]
 
