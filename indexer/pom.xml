@@ -29,6 +29,11 @@
       <artifactId>jedis</artifactId>
       <version>5.0.0-beta2</version>
     </dependency>
+	<dependency>
+	    <groupId>io.lettuce</groupId>
+	    <artifactId>lettuce-core</artifactId>
+	    <version>6.2.3.RELEASE</version>
+	</dependency>
   </dependencies>
 
   <build>
