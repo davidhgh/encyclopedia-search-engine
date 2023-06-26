@@ -18,51 +18,55 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.document.StringField;
 
-
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import java.util.Properties;
 
 public class Read {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
 		try {
 			// Create a Redis client pointing to your Redis instance
 			RedisClient redisClient = RedisClient.create("redis://10.147.19.195:6379");
 
 			// Connect to Redis
 			StatefulRedisConnection<String, String> connection = redisClient.connect();
-
-			// Create a synchronous RedisCommands instance
+            connection.setTimeout(Duration.ofMinutes(120));
+			
+            // Create a synchronous RedisCommands instance
 			RedisCommands<String, String> redisCommands = connection.sync();
 			// Read a value from Redis using the GET command
 			String key = "geturl:items";
 	        Analyzer analyzer = new StandardAnalyzer();
 
 			long index = 0;
-
-			
             long startIndex = 0; // Start index of the range
-            long endIndex = 3;   // End index of the range
+            long endIndex = -1;   // End index of the range
 			
 			Long element_len = redisCommands.llen(key);
-			
 			
             List<String> elements = redisCommands.lrange(key, startIndex, endIndex);
 
             // Save elements to a text file
             String filePath = "elements.txt";
 
-            String indexPath = "C:\\Users\\junji\\Desktop\\jajaja\\lucene\\indexs";
+            String indexPath = "C:\\Users\\rubyf\\Desktop\\lucene\\indexs";
             
             // Create Lucene index writer
             Directory directory = FSDirectory.open(Paths.get(indexPath));
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             IndexWriter indexWriter = new IndexWriter(directory, config);
+
+            long count = 0;
 
             // Create Lucene documents for each element and add them to the index
             for (String element : elements) {
@@ -70,17 +74,18 @@ public class Read {
                 if (document != null) {
                     indexWriter.addDocument(document);
                 }
+                count = count + 1;
             }
             
-//            writetxt(filePath, elements);
+            // writetxt(filePath, elements);
 			
             // Commit changes and close the index writer
             indexWriter.commit();
             indexWriter.close();
             
+			// System.out.println("Retrieved length: " + element_len);
+			System.out.println("Retrieved length: " + count);
 
-			System.out.println("Retrieved length: " + element_len);
-			
 			connection.close();
 			redisClient.shutdown();
 			
