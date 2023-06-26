@@ -38,14 +38,14 @@ public class Retrieve {
 		        Document doc = reader.document(i);
 		        
 		        // Access and process the document fields, Case-sensitive
-		        String id = doc.get("ID");
+		        String id = doc.get("url");
 		        String title = doc.get("title");
-		        String content = doc.get("content");
+		        String content = doc.get("description");
 		        
 		        // Perform further processing with the document
-		        System.out.println("Document ID: " + id);
+		        System.out.println("URL: " + id);
 		        System.out.println("Title: " + title);
-		        System.out.println("Content: " + content);
+		        System.out.println("Description: " + content);
 		        System.out.println("-------------------------------------");
 		    }
 		} catch (Exception e) {
