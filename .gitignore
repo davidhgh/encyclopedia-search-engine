@@ -1,5 +1,10 @@
+.vscode/settings.json
+
 # Search Engine Files
 encyclopedia/meta*.json
+indexes/
+elements.txt
+settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

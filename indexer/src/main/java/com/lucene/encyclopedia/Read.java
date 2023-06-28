@@ -1,10 +1,7 @@
 package com.lucene.encyclopedia;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -19,81 +16,134 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.document.StringField;
 
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import java.util.Properties;
 
 public class Read {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		try {
-			// Create a Redis client pointing to your Redis instance
-			RedisClient redisClient = RedisClient.create("redis://10.147.19.195:6379");
+            // Create a Redis client pointing to your Redis instance
+			RedisClient redisClient = RedisClient.create("redis://10.147.19.60:6379");
+
+            long iterations = 30;
+            long totalRetrieved = 0; // Total records retrieved
+            long steps = 0; // Index to increment for each iteration
+            long startIndex = 0; // Start index of the range
+            long endIndex = steps;   // End index of the range
+            
+            // Each iteration uses a separate connection to avoid loading all records in key at once (avoid memory issue)
+            for (int i = 0; i < iterations; i++) {
+                StatefulRedisConnection<String, String> connection = redisClient.connect();
+                connection.setTimeout(Duration.ofMinutes(120));
+
+                // Create a synchronous RedisCommands instance
+			    RedisCommands<String, String> redisCommands = connection.sync();
+
+			    // Read a value from Redis using the GET command
+			    String key = "geturl:items";
+	            Analyzer analyzer = new StandardAnalyzer();
+                Long element_len = redisCommands.llen(key);
+                steps = Math.floorDiv(element_len, iterations);
+                if (i == 0){
+                    endIndex = steps - 1;   // account for 0-indexed to avoid indexoutofbounds exception
+                }
+
+                List<String> elements = redisCommands.lrange(key, startIndex, endIndex);
+
+                // Save elements to a text file
+                String filePath = "elements.txt";
+                writetxt(filePath, elements);
+
+                // Create Lucene index writer
+                String indexPath = "indexer\\indexes";
+                Directory directory = FSDirectory.open(Paths.get(indexPath));
+                IndexWriterConfig config = new IndexWriterConfig(analyzer);
+                IndexWriter indexWriter = new IndexWriter(directory, config);
+
+                long count = 0;
+
+                // Create Lucene documents for each element and add them to the index
+                for (String element : elements) {
+                    Document document = createLuceneDocument(element);
+                    if (document != null) {
+                        indexWriter.addDocument(document);
+                    }
+                    count = count + 1;
+                }
+
+                // Commit changes and close the index writer
+                indexWriter.commit();
+                indexWriter.close();
+                
+                totalRetrieved += count;
+			    // System.out.println("Retrieved length: " + element_len);
+			    System.out.println((i+1) + "/" + iterations + " - Retrieved length: " + totalRetrieved);
+
+                // Increment index to retrieve for next iteration
+                startIndex += steps;
+                endIndex += steps;
+			    
+                connection.close();
+            }
 
 			// Connect to Redis
-			StatefulRedisConnection<String, String> connection = redisClient.connect();
-            connection.setTimeout(Duration.ofMinutes(120));
+			// StatefulRedisConnection<String, String> connection = redisClient.connect();
+            // connection.setTimeout(Duration.ofMinutes(120));
 			
-            // Create a synchronous RedisCommands instance
-			RedisCommands<String, String> redisCommands = connection.sync();
-			// Read a value from Redis using the GET command
-			String key = "geturl:items";
-	        Analyzer analyzer = new StandardAnalyzer();
+            // // Create a synchronous RedisCommands instance
+			// RedisCommands<String, String> redisCommands = connection.sync();
+			// // Read a value from Redis using the GET command
+			// String key = "geturl:items";
+	        // Analyzer analyzer = new StandardAnalyzer();
 
-			long index = 0;
-            long startIndex = 0; // Start index of the range
-            long endIndex = -1;   // End index of the range
+			// long index = 0;
+            // long startIndex = 0; // Start index of the range
+            // long endIndex = 10000;   // End index of the range
 			
-			Long element_len = redisCommands.llen(key);
+			// Long element_len = redisCommands.llen(key);
 			
-            List<String> elements = redisCommands.lrange(key, startIndex, endIndex);
+            // List<String> elements = redisCommands.lrange(key, startIndex, endIndex);
 
-            // Save elements to a text file
-            String filePath = "elements.txt";
+            // // Save elements to a text file
+            // String filePath = "elements.txt";
 
-            String indexPath = "C:\\Users\\rubyf\\Desktop\\lucene\\indexs";
+            // String indexPath = "C:\\Users\\rubyf\\Desktop\\lucene\\indexs";
             
-            // Create Lucene index writer
-            Directory directory = FSDirectory.open(Paths.get(indexPath));
-            IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            IndexWriter indexWriter = new IndexWriter(directory, config);
+            // // Create Lucene index writer
+            // Directory directory = FSDirectory.open(Paths.get(indexPath));
+            // IndexWriterConfig config = new IndexWriterConfig(analyzer);
+            // IndexWriter indexWriter = new IndexWriter(directory, config);
 
-            long count = 0;
+            // long count = 0;
 
-            // Create Lucene documents for each element and add them to the index
-            for (String element : elements) {
-                Document document = createLuceneDocument(element);
-                if (document != null) {
-                    indexWriter.addDocument(document);
-                }
-                count = count + 1;
-            }
+            // // Create Lucene documents for each element and add them to the index
+            // for (String element : elements) {
+            //     Document document = createLuceneDocument(element);
+            //     if (document != null) {
+            //         indexWriter.addDocument(document);
+            //     }
+            //     count = count + 1;
+            // }
             
             // writetxt(filePath, elements);
 			
-            // Commit changes and close the index writer
-            indexWriter.commit();
-            indexWriter.close();
+            // // Commit changes and close the index writer
+            // indexWriter.commit();
+            // indexWriter.close();
             
-			// System.out.println("Retrieved length: " + element_len);
-			System.out.println("Retrieved length: " + count);
+			// // System.out.println("Retrieved length: " + element_len);
+			// System.out.println("Retrieved length: " + count);
 
-			connection.close();
+			// connection.close();
 			redisClient.shutdown();
 			
 		} catch (Exception e) {
             e.printStackTrace();
 		}
-
-		
 	}
 	
 	public static void writetxt(String txt_name,List<String> elements) {
@@ -138,7 +188,5 @@ public class Read {
             e.printStackTrace();
             return null;
         }
-    }
-    
-    
+    }   
 }

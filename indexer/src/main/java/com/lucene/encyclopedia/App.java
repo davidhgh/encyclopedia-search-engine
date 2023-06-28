@@ -21,10 +21,9 @@ public class App
     {
         System.out.println( "Hello World! + App.java" );
         
-        
         try {
             // Step 1: Create a Lucene Directory
-            Directory directory = FSDirectory.open(Paths.get("C:\\Users\\junji\\Desktop\\jajaja\\lucene\\indexs"));
+            Directory directory = FSDirectory.open(Paths.get("indexer\\indexes"));
 
             // Step 2: Create an IndexWriter
             Analyzer analyzer = new StandardAnalyzer();

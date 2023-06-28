@@ -10,10 +10,8 @@ public class Retrieve {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
         System.out.println( "Hello World! + test.java" );
-        
-        
-        
-        String indexPath = "C:\\Users\\junji\\Desktop\\jajaja\\lucene\\indexs";
+
+		String indexPath = "indexer\\indexes";
 
         try {
             Directory directory = FSDirectory.open(Paths.get(indexPath));

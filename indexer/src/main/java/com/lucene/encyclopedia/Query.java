@@ -20,11 +20,11 @@ public class Query {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-        String indexPath = "C:\\Users\\junji\\Desktop\\jajaja\\lucene\\indexs"; // Replace with your index path
+        String indexPath = "indexer\\indexes";
         Analyzer analyzer = new StandardAnalyzer();
 
         // Search query
-        String searchQuery = "dictionary"; // Replace with your search query
+        String searchQuery = "Computer"; // Replace with your search query
 
         // Perform the search
         Directory directory = null;
