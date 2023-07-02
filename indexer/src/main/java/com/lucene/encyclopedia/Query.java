@@ -23,8 +23,11 @@ public class Query {
         String indexPath = "indexer\\indexes";
         Analyzer analyzer = new StandardAnalyzer();
 
+        // "computer", "glasgow", "united", "kingdom", "library", "fog", "empires", "doctor", "hospital", "bachelor",
+        // "degree", "internet", "things", "information", "info", "retrieval", "retrieve", "info", "universe", "university"
+
         // Search query
-        String searchQuery = "Computer"; // Replace with your search query
+        String searchQuery = "university"; // Replace with your search query
 
         // Perform the search
         Directory directory = null;
@@ -46,7 +49,6 @@ public class Query {
 
             // Execute the search
             TopDocs topDocs = indexSearcher.search(query, 10); // Retrieve top 10 results
-
 
             // Process the search results
             System.out.println("Total results found: " + topDocs.totalHits);

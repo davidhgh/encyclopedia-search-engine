@@ -13,7 +13,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.document.StringField;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -29,7 +28,7 @@ public class Read {
             // Create a Redis client pointing to your Redis instance
 			RedisClient redisClient = RedisClient.create("redis://10.147.19.60:6379");
 
-            long iterations = 30;
+            long iterations = 20;
             long totalRetrieved = 0; // Total records retrieved
             long steps = 0; // Index to increment for each iteration
             long startIndex = 0; // Start index of the range
@@ -90,55 +89,6 @@ public class Read {
                 connection.close();
             }
 
-			// Connect to Redis
-			// StatefulRedisConnection<String, String> connection = redisClient.connect();
-            // connection.setTimeout(Duration.ofMinutes(120));
-			
-            // // Create a synchronous RedisCommands instance
-			// RedisCommands<String, String> redisCommands = connection.sync();
-			// // Read a value from Redis using the GET command
-			// String key = "geturl:items";
-	        // Analyzer analyzer = new StandardAnalyzer();
-
-			// long index = 0;
-            // long startIndex = 0; // Start index of the range
-            // long endIndex = 10000;   // End index of the range
-			
-			// Long element_len = redisCommands.llen(key);
-			
-            // List<String> elements = redisCommands.lrange(key, startIndex, endIndex);
-
-            // // Save elements to a text file
-            // String filePath = "elements.txt";
-
-            // String indexPath = "C:\\Users\\rubyf\\Desktop\\lucene\\indexs";
-            
-            // // Create Lucene index writer
-            // Directory directory = FSDirectory.open(Paths.get(indexPath));
-            // IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            // IndexWriter indexWriter = new IndexWriter(directory, config);
-
-            // long count = 0;
-
-            // // Create Lucene documents for each element and add them to the index
-            // for (String element : elements) {
-            //     Document document = createLuceneDocument(element);
-            //     if (document != null) {
-            //         indexWriter.addDocument(document);
-            //     }
-            //     count = count + 1;
-            // }
-            
-            // writetxt(filePath, elements);
-			
-            // // Commit changes and close the index writer
-            // indexWriter.commit();
-            // indexWriter.close();
-            
-			// // System.out.println("Retrieved length: " + element_len);
-			// System.out.println("Retrieved length: " + count);
-
-			// connection.close();
 			redisClient.shutdown();
 			
 		} catch (Exception e) {
@@ -151,14 +101,14 @@ public class Read {
             for (String element : elements) {
                 writer.write(element);
                 writer.newLine();
-                System.out.println(element + "\n");
+                // System.out.println(element + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 		finally {
 			// Close the Redis connection and client
-			System.out.println("Create Txt file");
+			// System.out.println("Create Txt file");
 		}
 	}
 	
@@ -169,17 +119,20 @@ public class Read {
             String url = jsonElement.getString("url");
             String title = jsonElement.getString("title");
             String description = jsonElement.getString("description");
-
+            // String content = jsonElement.getString("content");
             
-            System.out.println(url);
-            System.out.println(title);
-            System.out.println(description);
+            // For debugging purposes only
+            // System.out.println(url);
+            // System.out.println(title);
+            // System.out.println(description);
+            // System.out.println(content);
             
             // Create Lucene document
             Document document = new Document();
             document.add(new Field("url", url, TextField.TYPE_STORED));
             document.add(new Field("title", title, TextField.TYPE_STORED));
             document.add(new Field("description", description, TextField.TYPE_STORED));
+            // document.add(new Field("content", content, TextField.TYPE_STORED));
 
             // Add more fields as needed
 
