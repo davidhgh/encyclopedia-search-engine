@@ -3,6 +3,7 @@
 # Search Engine Files
 encyclopedia/meta*.json
 indexes/
+html/
 elements.txt
 settings.py
 

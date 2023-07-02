@@ -45,7 +45,10 @@ public class Read {
 			    // Read a value from Redis using the GET command
 			    String key = "geturl:items";
 	            Analyzer analyzer = new StandardAnalyzer();
+
+                // Number of documents in corpus -> For TF-IDF
                 Long element_len = redisCommands.llen(key);
+                
                 steps = Math.floorDiv(element_len, iterations);
                 if (i == 0){
                     endIndex = steps - 1;   // account for 0-indexed to avoid indexoutofbounds exception
